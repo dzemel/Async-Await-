@@ -3,16 +3,11 @@ const BASE_URL = "https://pokeapi.co/api/v2/pokemon";
 let pokemonArray = [];
 let newPokemonArr = [];
 
-async function getNameAndURL() {
+async function getNameAndURL(num) {
   let response = await axios.get(BASE_URL + "?limit=1200");
   pokemonArray = response.data.results;
-  let threePokemon = randomElementsFrom(pokemonArray, 3);
-  for (let pokemon of threePokemon) {
-    let res = await getPokemonDetails(pokemon.url);
-    console.log(res);
-    newPokemonArr.push(res);
-  }
-  console.log(newPokemonArr);
+  let threePokemon = randomElementsFrom(pokemonArray, num);
+  threePokemon = await Promise.all(threePokemon.map(e => getPokemonDetails(e.url)));
 }
 
 async function getPokemonDetails(url) {
@@ -21,18 +16,14 @@ async function getPokemonDetails(url) {
   let image = response.data.sprites.front_default;
   let speciesURL = response.data.species.url;
   let description = await getDescription(speciesURL);
-  return { name, image, description };
+  return {name, image, description};
 }
 
 async function getDescription(speciesUrl) {
   let response = await axios.get(speciesUrl);
-  console.log(response);
   let englishResults = response.data.flavor_text_entries.filter(
-    (entry) => entry.language.name === "en"
-  );
-  console.log(englishResults);
-  console.log(englishResults[0].flavor_text);
-  return "";
+    (entry) => entry.language.name === "en");
+  return englishResults[0].flavor_text;
 }
 
 function randomElementsFrom(arr, num) {
