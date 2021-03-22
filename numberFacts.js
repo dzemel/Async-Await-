@@ -14,15 +14,13 @@ async function getManyNumFacts() {
   }
 }
 
-async function getMultipleFactsPerNum(number) {
-  let response = await Promise.all([
-    axios.get(BASE_URL + `/${number}?json`),
-    axios.get(BASE_URL + `/${number}?json`),
-    axios.get(BASE_URL + `/${number}?json`),
-    axios.get(BASE_URL + `/${number}?json`),
-  ]);
-  for (let entry of response) {
-    console.log(entry.data.text);
-    $("#show-batch-numbers").append($("<p>").text(entry.data.text));
+async function getMultipleFactsPerNum(number, num_facts) {
+  let nums_of_number = Array(num_facts).fill(number);
+  let responses = await Promise.all(nums_of_number.map(num => axios.get(BASE_URL + "/" + num)));
+
+  for (let entry of responses) {
+    $("#show-batch-numbers").append($("<p>").text(entry.data));
   }
 }
+
+
